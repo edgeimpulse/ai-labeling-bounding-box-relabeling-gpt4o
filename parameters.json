@@ -1,0 +1,33 @@
+[{
+    "name": "OpenAI API Key",
+    "value": "",
+    "type": "secret",
+    "help": "An API Key that gives access to OpenAI",
+    "param": "OPENAI_API_KEY"
+}, {
+    "name": "Which bounding boxes to re-label?",
+    "value": "animal",
+    "type": "string",
+    "help": "Select all bounding boxes we should re-label (separate by a comma if you have multiple)",
+    "param": "which-labels",
+    "multiline": true
+}, {
+    "name": "Prompt",
+    "value": "What kind of animal is this? Respond with only the name of the animal. If this is not animal, say 'remove'.",
+    "type": "string",
+    "help": "A prompt asking a question to the LLM. The answer should be a single label.",
+    "param": "prompt",
+    "multiline": true
+}, {
+    "name": "Remove bounding boxes w/ label",
+    "value": "remove",
+    "type": "string",
+    "help": "If a certain label is output, remove the bounding box.",
+    "param": "disable-labels"
+}, {
+    "name": "Concurrency",
+    "value": "10",
+    "type": "int",
+    "help": "Number of samples to label in parallel",
+    "param": "concurrency"
+}]

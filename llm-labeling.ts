@@ -38,6 +38,7 @@ program
         `E.g. your prompt can be: "If the picture is blurry, respond with 'blurry'", ` +
         `and add "blurry" to the disabled labels. Multiple labels can be split by ",".`
     )
+    .option('--image-quality <quality>', 'Quality of the image to send to GPT. Either "auto", "low" or "high" (default "auto")')
     .option('--concurrency <n>', `Concurrency (default: 1)`)
     .requiredOption('--data-ids-file <file>', 'File with IDs (as JSON)')
     .option('--propose-actions <job-id>', 'If this flag is passed in, only propose suggested actions')
@@ -53,6 +54,7 @@ const whichLabelsArgv = (<string[]>(<string>program.whichLabels || '').split(','
 // (you could use $'test\nanotherline' but we won't do that in the Edge Impulse backend)
 const promptArgv = (<string>program.prompt).replace('\\n', '\n');
 const disableLabelsArgv = (<string[]>(<string | undefined>program.disableLabels || '').split(',')).map(x => x.trim().toLowerCase()).filter(x => !!x);
+const imageQualityArgv = (<'auto' | 'low' | 'high'>program.imageQuality) || 'auto';
 const concurrencyArgv = program.concurrency ? Number(program.concurrency) : 1;
 const dataIdsFile = <string>program.dataIdsFile;
 const proposeActionsJobId = program.proposeActions ?
@@ -101,6 +103,7 @@ catch (ex2) {
         console.log(`    Bounding boxes to relabel: "${whichLabelsArgv.join(', ')}"`);
         console.log(`    Prompt: "${promptArgv}"`);
         console.log(`    Remove bounding boxes with labels: ${disableLabelsArgv.length === 0 ? '-' : disableLabelsArgv.join(', ')}`);
+        console.log(`    Image quality: ${imageQualityArgv}`);
         console.log(`    Concurrency: ${concurrencyArgv}`);
         if (dataIds.length < 6) {
             console.log(`    IDs: ${dataIds.join(', ')}`);
@@ -124,6 +127,8 @@ catch (ex2) {
         let activeGptQueries = 0;
         let processed = 0;
         let error = 0;
+        let promptTokensTotal = 0;
+        let completionTokensTotal = 0;
 
         const getSummary = () => {
             return `(query_count=${gptQueryCount}, error=${error})`;
@@ -134,6 +139,8 @@ catch (ex2) {
             console.log(`[${currFile}/${total}] Labeling samples... ` +
                 getSummary());
         }, 3000);
+
+        const model: OpenAI.Chat.ChatModel = 'gpt-4o-2024-08-06';
 
         const labelSampleWithOpenAI = async (sample: models.Sample) => {
             try {
@@ -188,7 +195,7 @@ catch (ex2) {
                             activeGptQueries++;
 
                             const resp = await openai.chat.completions.create({
-                                model: 'gpt-4o-2024-08-06',
+                                model: model,
                                 messages: [{
                                     role: 'user',
                                     content: [{
@@ -198,13 +205,17 @@ catch (ex2) {
                                         type: 'image_url',
                                         image_url: {
                                             url: 'data:image/jpeg;base64,' + (croppedBuffer.toString('base64')),
-                                            detail: 'auto'
+                                            detail: imageQualityArgv
                                         }
                                     }]
                                 }]
                             });
 
                             // console.log('resp', JSON.stringify(resp, null, 4));
+                            if (resp.usage) {
+                                promptTokensTotal += resp.usage.prompt_tokens;
+                                completionTokensTotal += resp.usage.completion_tokens;
+                            }
 
                             if (resp.choices.length !== 1) {
                                 throw new Error('Expected choices to have 1 item (' + JSON.stringify(resp) + ')');
@@ -300,7 +311,12 @@ catch (ex2) {
             clearInterval(updateIv);
 
             console.log(`[${total}/${total}] Labeling samples... ` + getSummary());
-            console.log(`Done labeling samples, goodbye!`);
+            console.log(`Done labeling samples!`);
+            console.log(``);
+            console.log(`OpenAI usage info:`);
+            console.log(`    Model = ${model}`);
+            console.log(`    Input tokens = ${promptTokensTotal.toLocaleString()}`);
+            console.log(`    Output tokens = ${completionTokensTotal.toLocaleString()}`);
         }
         finally {
             clearInterval(updateIv);

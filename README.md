@@ -8,11 +8,11 @@ Let's say you want to label individual chess pieces by their name (e.g. rook, bi
 
 ### Step 1: Use a zero-shot object detector to find the pieces
 
-[Chess pieces](images/zero_shot1.png)
+![Chess pieces](images/zero_shot1.png)
 
 ### Step 2: Using GPT4o to relabel the bounding boxes
 
-[Labeled chess pieces](images/zero_shot2.png)
+![Labeled chess pieces](images/zero_shot2.png)
 
 Here GPT4o relabeled all chess pieces with accurate names, and removed erronous ones (like the chess board).
 

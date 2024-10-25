@@ -1,8 +1,8 @@
 import fs from 'fs';
 import Path from 'path';
 import program from 'commander';
-import { EdgeImpulseApi } from 'edge-impulse-api';
-import * as models from 'edge-impulse-api/build/library/sdk/model/models';
+import { EdgeImpulseApi } from './api-bindings';
+import * as models from './api-bindings/sdk/model/models';
 import OpenAI from "openai";
 import asyncPool from 'tiny-async-pool';
 import sharp from 'sharp';
@@ -347,6 +347,7 @@ async function listDataByIds(projectId: number, ids: number[]) {
                 labels: '',
                 offset: offset,
                 limit: limit,
+                proposedActionsJobId: proposeActionsJobId,
             });
             if (ret.samples.length === 0) {
                 break;
@@ -366,6 +367,7 @@ async function listDataByIds(projectId: number, ids: number[]) {
                 labels: '',
                 offset: offset,
                 limit: limit,
+                proposedActionsJobId: proposeActionsJobId,
             });
             if (ret.samples.length === 0) {
                 break;
@@ -383,58 +385,6 @@ async function listDataByIds(projectId: number, ids: number[]) {
     }
     return allSamples;
 }
-
-async function listAllVideos(projectId: number) {
-    const limit = 1000;
-    let offset = 0;
-    let allSamples: models.Sample[] = [];
-
-    let iv = setInterval(() => {
-        console.log(`Still listing videos (found ${allSamples.length} samples)...`);
-    }, 3000);
-
-    try {
-        while (1) {
-            let ret = await api.rawData.listSamples(projectId, {
-                category: 'training',
-                labels: '',
-                offset: offset,
-                limit: limit,
-            });
-            if (ret.samples.length === 0) {
-                break;
-            }
-            for (let s of ret.samples) {
-                if (s.chartType === 'video' && !s.isProcessing) {
-                    allSamples.push(s);
-                }
-            }
-            offset += limit;
-        }
-        while (1) {
-            let ret = await api.rawData.listSamples(projectId, {
-                category: 'testing',
-                labels: '',
-                offset: offset,
-                limit: limit,
-            });
-            if (ret.samples.length === 0) {
-                break;
-            }
-            for (let s of ret.samples) {
-                if (s.chartType === 'video' && !s.isProcessing) {
-                    allSamples.push(s);
-                }
-            }
-            offset += limit;
-        }
-    }
-    finally {
-        clearInterval(iv);
-    }
-    return allSamples;
-}
-
 
 export async function retryWithTimeout<T>(fn: () => Promise<T>, opts: {
     fnName: string,

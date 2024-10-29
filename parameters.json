@@ -3,7 +3,10 @@
     "type": "ai-action",
     "info": {
         "name": "Re-label bounding boxes with GPT4o",
-        "description": "Takes existing bounding boxes (e.g. from a zero-shot object detector), then asks GPT4o to relabel them."
+        "description": "Takes existing bounding boxes (e.g. from a zero-shot object detector), then asks GPT4o to relabel them.",
+        "operatesOn": [
+            "images_object_detection"
+        ]
     },
     "parameters": [
         {

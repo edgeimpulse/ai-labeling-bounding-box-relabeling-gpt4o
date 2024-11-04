@@ -2,8 +2,11 @@
     "version": 1,
     "type": "ai-action",
     "info": {
-        "name": "Re-label bounding boxes with GPT4o",
-        "description": "Takes existing bounding boxes (e.g. from a zero-shot object detector), then asks GPT4o to relabel them."
+        "name": "Bounding box re-labeling with GPT-4o",
+        "description": "Takes existing bounding boxes (e.g. from a zero-shot object detector), then uses GPT4o to relabel or remove them.",
+        "operatesOn": [
+            "images_object_detection"
+        ]
     },
     "parameters": [
         {
@@ -19,7 +22,9 @@
             "type": "string",
             "help": "Select all bounding boxes we should re-label (separate by a comma if you have multiple)",
             "param": "which-labels",
-            "multiline": true
+            "multiline": true,
+            "placeholder": "animal, bottle",
+            "hint": "Separate by a comma if you have multiple bounding boxes"
         },
         {
             "name": "Prompt",
@@ -27,7 +32,9 @@
             "type": "string",
             "help": "A prompt asking a question to the LLM. The answer should be a single label.",
             "param": "prompt",
-            "multiline": true
+            "multiline": true,
+            "placeholder": "What kind of animal is this? Respond with only the name of the animal. If this is not animal, say 'remove'.",
+            "hint": "A prompt asking a question to the LLM. The answer should be a single label."
         },
         {
             "name": "Remove bounding boxes w/ label",

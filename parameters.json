@@ -34,7 +34,7 @@
             "param": "prompt",
             "multiline": true,
             "placeholder": "What kind of animal is this? Respond with only the name of the animal. If this is not animal, say 'remove'.",
-            "hint": "A prompt asking a question to the LLM. The answer should be a single label."
+            "hint": "The answer should be a single label, e.g. 'Is there a person, respond only with \"yes\" or \"no\"'."
         },
         {
             "name": "Remove bounding boxes w/ label",

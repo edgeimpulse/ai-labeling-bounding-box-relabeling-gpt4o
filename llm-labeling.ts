@@ -209,9 +209,6 @@ catch (ex2) {
                                         }
                                     }]
                                 }],
-                                response_format: {
-                                    type: 'json_object'
-                                },
                             });
 
                             // console.log('resp', JSON.stringify(resp, null, 4));

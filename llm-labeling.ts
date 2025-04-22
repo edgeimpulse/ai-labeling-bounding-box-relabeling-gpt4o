@@ -179,10 +179,10 @@ catch (ex2) {
                     if (bb.height <= 0) return;
 
                     const croppedBuffer = await sharp(fullImgBuffer).extract({
-                        left: bb.x,
-                        top: bb.y,
-                        width: bb.width,
-                        height: bb.height,
+                        left: Math.round(bb.x),
+                        top: Math.round(bb.y),
+                        width: Math.round(bb.width),
+                        height: Math.round(bb.height),
                     }).jpeg({ quality: 90 }).toBuffer();
 
                     // too many queries? wait...
